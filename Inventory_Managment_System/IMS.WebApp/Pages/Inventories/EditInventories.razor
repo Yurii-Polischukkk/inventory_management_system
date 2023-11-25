@@ -1,0 +1,54 @@
+﻿@page "/editinventory/{InventoryId:int}"
+@using IMS.CoreBuisness;
+@using IMS.UseCases.Inventories;
+@inject EditInventoryUseCase EditInventoryUseCase
+@inject NavigationManager NavigationManager
+@inject InventoryService InventoryService
+<h3>Edit Inventory</h3>
+
+@if (CurrentInventory != null)
+{
+    <form>
+        <div class="form-group">
+            <label for="inventoryName">Inventory Name</label>
+            <input type="text" class="form-control" id="inventoryName" @bind="CurrentInventory.InventoryName" />
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" class="form-control" id="quantity" @bind="CurrentInventory.Quantity" />
+        </div>
+        <div class="form-group">
+            <label for="price">Price</label>
+            <input type="number" class="form-control" id="price" @bind="CurrentInventory.Price" />
+        </div>
+        <button type="button" class="btn btn-primary" @onclick="UpdateInventory">Update</button>
+    </form>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [Parameter]
+    public int InventoryId { get; set; }
+
+    private Inventory CurrentInventory { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the inventory details based on the provided InventoryId
+        CurrentInventory = await InventoryService.GetInventoryByIdAsync(InventoryId);
+    }
+
+
+
+    private async Task UpdateInventory()
+    {
+        // Call the EditInventoryUseCase to update the inventory
+        await EditInventoryUseCase.ExecuteAsync(CurrentInventory);
+
+        // Redirect back to the inventory list page after updating
+        NavigationManager.NavigateTo("/inventory");
+    }
+}
